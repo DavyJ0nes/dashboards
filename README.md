@@ -2,10 +2,11 @@
 
 <!-- vim-markdown-toc Redcarpet -->
 
-* [Overview](#overview)
-  * [Dashboard List](#dashboard-list)
-* [Usage](#usage)
-* [License](#license)
+- [Dashboards](#dashboards)
+  - [Overview](#overview)
+    - [Dashboard List](#dashboard-list)
+  - [Usage](#usage)
+  - [License](#license)
 
 <!-- vim-markdown-toc -->
 
@@ -19,6 +20,7 @@ Uses the [Grafonnnet](https://github.com/grafana/grafonnet-lib) library
 
 - Cloudwatch
   - [RDS](./cloudwatch/rds.jsonnet)
+  - [SQS](./cloudwatch/sqs.jsonnet)
 
 ## Usage
 
