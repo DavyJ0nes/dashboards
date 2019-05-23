@@ -9,9 +9,27 @@ local template = grafana.template;
 
 // ***** Variables ***** //
 
+local envVar = {
+  "current": {
+    "text": "Cloudwatch Prod",
+    "value": "CloudWatch Prod"
+  },
+  "hide": 0,
+  "includeAll": false,
+  "label": "Env",
+  "multi": false,
+  "name": "env",
+  "options": [],
+  "query": "cloudwatch",
+  "refresh": 1,
+  "regex": "/^Cloud/",
+  "skipUrlSync": false,
+  "type": "datasource"
+};
+
 local regionVar = template.new(
   'region',
-  'CloudWatch Prod',
+  '$env',
   'regions()',
   'Region',
   current='eu-west-1',
@@ -20,7 +38,7 @@ local regionVar = template.new(
 
 local dbNameVar = template.new(
   'dbName',
-  'CloudWatch Prod',
+  '$env',
   'dimension_values($region,AWS/RDS,CPUUtilization,DBInstanceIdentifier)',
   'DB Name',
   refresh='load'
@@ -32,6 +50,7 @@ local RDSTarget(metric, stat='Average') = cloudwatch.target(
   '$region',
   'AWS/RDS',
   metric,
+  datasource='$env',
   statistic=stat,
   alias='{{ stat }} {{ metric }}',
   dimensions={ DBInstanceIdentifier: '$dbName' }
@@ -39,6 +58,7 @@ local RDSTarget(metric, stat='Average') = cloudwatch.target(
 
 local SingleStat(name, fmt, target) = singlestat.new(
   name,
+  datasource='$env',
   format=fmt,
   span=2,
   valueName='current',
@@ -47,6 +67,7 @@ local SingleStat(name, fmt, target) = singlestat.new(
 
 local SimpleGraph(name, targets) = graph.new(
   name,
+  datasource='$env',
   span=6,
 ).addTargets(targets);
 
@@ -93,6 +114,7 @@ dashboard.new(
   time_from='now-30m',
   tags=['cloudwatch', 'databases']
 )
+.addTemplate(envVar)
 .addTemplate(regionVar)
 .addTemplate(dbNameVar)
 .addRows(

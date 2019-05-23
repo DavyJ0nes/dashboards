@@ -1,0 +1,25 @@
+apiVersion: 1
+
+deleteDatasources:
+  - name: Cloudwatch Prod
+    orgId: 1
+  - name: Cloudwatch Stg
+    orgId: 1
+
+datasources:
+- name: Cloudwatch Prod
+  type: cloudwatch
+  jsonData:
+    authType: arn
+    assumeRoleArn: arn:aws:iam::012345678912:role/xa/ReadOnly
+    defaultRegion: eu-west-1
+  version: 1
+  editable: false
+- name: Cloudwatch Stg
+  type: cloudwatch
+  jsonData:
+    authType: arn
+    assumeRoleArn: arn:aws:iam::012345678912:role/xa/ReadOnly
+    defaultRegion: eu-west-1
+  version: 1
+  editable: false
