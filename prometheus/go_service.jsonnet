@@ -81,5 +81,6 @@ dashboard.new(
         memoryRow,
         fileDescriptorsRow,
         goRoutineRow,
+        gcRow,
     ]
 )

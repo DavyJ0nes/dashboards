@@ -175,16 +175,8 @@ local prometheus = grafana.prometheus;
                 expr='go_gc_duration_seconds{service="$service"}',
                 legendFormat='q {{ quantile }}: {{ pod }}'
             ),
-            prometheus.target(
-                expr='rate(go_gc_duration_seconds_sum{pod="$pod"}[$interval])',
-                legendFormat='{{ pod }} gc rate'
-            ),
-            prometheus.target(
-                expr='go_memstats_last_gc_time_seconds{service="$service"}',
-                legendFormat='{{ pod }} last gc time'
-            ),
         ],
-        fmt='seconds',
+        fmt='s',
         span=12,
     ),
 }
