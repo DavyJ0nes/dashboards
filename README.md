@@ -2,11 +2,11 @@
 
 <!-- vim-markdown-toc Redcarpet -->
 
-- [Dashboards](#dashboards)
-  - [Overview](#overview)
-    - [Dashboard List](#dashboard-list)
-  - [Usage](#usage)
-  - [License](#license)
+- [Dashboards](#Dashboards)
+  - [Overview](#Overview)
+    - [Dashboard List](#Dashboard-List)
+  - [Usage](#Usage)
+  - [License](#License)
 
 <!-- vim-markdown-toc -->
 
@@ -14,13 +14,16 @@
 
 Selection of useful grafana dashboards written with jsonnet
 
-Uses the [Grafonnnet](https://github.com/grafana/grafonnet-lib) library
+Uses the [Grafonnet](https://github.com/grafana/grafonnet-lib) library
 
 ### Dashboard List
 
 - Cloudwatch
   - [RDS](./cloudwatch/rds.jsonnet)
   - [SQS](./cloudwatch/sqs.jsonnet)
+
+- Prometheus
+  - [Go Service Running on Kubernetes](./prometheus/go_service.jsonnet)
 
 ## Usage
 
