@@ -1,23 +1,26 @@
 # Prometheus Dashboards
 
-## Queries List
+To aid in speedy creation of dashboards and to allow reusability of metrics,
+annotations etc across dashboards the following libsonnet libs have been
+created:
 
-```
-process_resident_memory_bytes{namespace=~\"^($namespace)$\",pod=~\"^($pod)$\"}
-process_virtual_memory_bytes{namespace=~\"^($namespace)$\",pod=~\"^($pod)$\"}
-rate(process_resident_memory_bytes{namespace=~\"^($namespace)$\",pod=~\"^($pod)$\"}[$interval])
-deriv(process_virtual_memory_bytes{namespace=~\"^($namespace)$\",pod=~\"^($pod)$\"}[$interval])
-go_memstats_alloc_bytes{namespace=~\"^($namespace)$\",pod=~\"^($pod)$\"}
-rate(go_memstats_alloc_bytes_total{namespace=~\"^($namespace)$\",pod=~\"^($pod)$\"}[30s])
-go_memstats_stack_inuse_bytes{namespace=~\"^($namespace)$\",pod=~\"^($pod)$\"}
-go_memstats_heap_inuse_bytes{namespace=~\"^($namespace)$\",pod=~\"^($pod)$\"}
-deriv(go_memstats_alloc_bytes{namespace=~\"^($namespace)$\",pod=~\"^($pod)$\"}[$interval])
-rate(go_memstats_alloc_bytes_total{namespace=~\"^($namespace)$\",pod=~\"^($pod)$\"}[$interval])
-deriv(go_memstats_stack_inuse_bytes{namespace=~\"^($namespace)$\",pod=~\"^($pod)$\"}[$interval])
-deriv(go_memstats_heap_inuse_bytes{namespace=~\"^($namespace)$\",pod=~\"^($pod)$\"}[$interval])
-process_open_fds{namespace=~\"^($namespace)$\",pod=~\"^($pod)$\"}
-deriv(process_open_fds{namespace=~\"^($namespace)$\",pod=~\"^($pod)$\"}[$interval])
-go_goroutines{namespace=~\"^($namespace)$\",pod=~\"^($pod)$\"}
-go_gc_duration_seconds{namespace=~\"^($namespace)$\",pod=~\"^($pod)$\"}
+- [annotations](./lib/annotations.libsonnet)
+- [functions](./lib/functions.libsonnet)
+- [links](./lib/links.libsonnet)
+- [metrics](./lib/metrics.libsonnet)
+- [variables](./lib/variables.libsonnet)
 
-```
+With these then one is able to easily compose dashboards with less boilerplate.
+
+There are currently two dashboards built:
+
+- **Go Process** is intended to give low leve process information about a go service.
+  This is useful when digging further into a specific issue and not intended as
+  an overview
+- **K8s Container USE** makes use of the [cadvisor metrics](https://github.com/google/cadvisor/blob/master/docs/storage/prometheus.md)
+  and the [USE method](http://www.brendangregg.com/usemethod.html) to help
+  allow viewers understand what the Utilisation, Saturation and Errors are of a
+  container.
+  This is useful when digging further into a specific issue and not intended as
+  an overview
+  

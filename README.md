@@ -23,7 +23,8 @@ Uses the [Grafonnet](https://github.com/grafana/grafonnet-lib) library
   - [SQS](./cloudwatch/sqs.jsonnet)
 
 - Prometheus
-  - [Go Service Running on Kubernetes](./prometheus/go_service.jsonnet)
+  - [Go Process Running on Kubernetes](./prometheus/go_process_k8s.jsonnet)
+  - [Kubernetes Containers](./prometheus/k8s_container.jsonnet)
 
 ## Usage
 

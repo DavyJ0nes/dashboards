@@ -49,7 +49,7 @@ local goRoutineRow = row.new(
 // ***** Dashboard ***** //
 
 dashboard.new(
-  'Go Service',
+  'Go Process',
   refresh='30s',
   time_from='now-30m',
   tags=['prometheus', 'kubernetes', 'go']
