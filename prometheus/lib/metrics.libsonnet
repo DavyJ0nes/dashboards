@@ -236,11 +236,19 @@ local prometheus = grafana.prometheus;
             fmt='s',
         ),
         ContainerThrottledCPU: funcs.Graph(
-            'Container CPU Trottled Time',
+            'Container CPU Throttled Time',
             [
                 prometheus.target(
-                    expr='sum(rate(container_cpu_cfs_throttled_seconds_total{pod_name=~"$selector.*", pod_name=~"^($pod)$", container_name=~".+", container_name!~"POD"}[$interval])) by (container_name)',
+                    expr='avg(rate(container_cpu_cfs_throttled_seconds_total{pod_name=~"$selector.*", pod_name=~"^($pod)$", container_name=~".+", container_name!~"POD"}[$interval])) by (container_name)',
                     legendFormat='{{ container_name }}'
+                ),
+                prometheus.target(
+                    expr='max_over_time((rate(container_cpu_cfs_throttled_seconds_total{pod_name=~"$selector.*", pod_name=~"^($pod)$", container_name=~".+", container_name!~"POD"}[$interval]))[1h:])',
+                    legendFormat='{{ container_name }} - max (1h)'
+                ),
+                prometheus.target(
+                    expr='avg_over_time((rate(container_cpu_cfs_throttled_seconds_total{pod_name=~"$selector.*", pod_name=~"^($pod)$", container_name=~".+", container_name!~"POD"}[$interval]))[1h:])',
+                    legendFormat='{{ container_name }} - avg (1h)'
                 ),
             ],
             fmt='s',
@@ -258,8 +266,8 @@ local prometheus = grafana.prometheus;
                     legendFormat='{{ container_name }} - avg (1h)'
                 ),
                 prometheus.target(
-                    expr='sum(container_memory_working_set_bytes{pod_name=~"$selector.*", pod_name=~"^($pod)$", container_name=~".+", container_name!~"POD"}) by (container_name)',
-                    legendFormat='{{ container_name }} - avg'
+                    expr='container_memory_working_set_bytes{pod_name=~"$selector.*", pod_name=~"^($pod)$", container_name=~".+", container_name!~"POD"}',
+                    legendFormat='{{ container_name }} - current'
                 ),
             ],
             span=4,

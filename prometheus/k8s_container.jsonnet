@@ -2,6 +2,7 @@ local grafana = import '../lib/grafonnet/grafana.libsonnet';
 local vars = import './lib/variables.libsonnet';
 local annotations = import './lib/annotations.libsonnet';
 local metrics = import './lib/metrics.libsonnet';
+local links = import './lib/links.libsonnet';
 
 local dashboard = grafana.dashboard;
 local row = grafana.row;
@@ -70,6 +71,7 @@ dashboard.new(
 .addTemplate(vars.K8s_Pod)
 .addTemplate(vars.Interval)
 .addAnnotation(annotations.ContainerStarted)
+.addLink(links.RelatedDashboards)
 .addRows(
     [
         infoRow,

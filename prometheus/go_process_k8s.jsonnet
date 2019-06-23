@@ -2,6 +2,7 @@ local grafana = import '../lib/grafonnet/grafana.libsonnet';
 local vars = import './lib/variables.libsonnet';
 local annotations = import './lib/annotations.libsonnet';
 local metrics = import './lib/metrics.libsonnet';
+local links = import './lib/links.libsonnet';
 
 local dashboard = grafana.dashboard;
 local row = grafana.row;
@@ -51,13 +52,14 @@ dashboard.new(
   'Go Service',
   refresh='30s',
   time_from='now-30m',
-  tags=['prometheus', 'go']
+  tags=['prometheus', 'kubernetes', 'go']
 )
 .addTemplate(vars.Datasource)
 .addTemplate(vars.Go_Service)
 .addTemplate(vars.Go_Pod)
 .addTemplate(vars.Interval)
 .addAnnotation(annotations.PodStarted)
+.addLink(links.RelatedDashboards)
 .addRows(
     [
         infoRow,
