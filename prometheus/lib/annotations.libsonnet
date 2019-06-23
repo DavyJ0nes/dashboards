@@ -2,7 +2,7 @@ local grafana = import '../../lib/grafonnet/grafana.libsonnet';
 
 local annotation = grafana.annotation;
 
-local newAnnotation(name, expr, color, textFormat='Pod: {{ pod }}') = {
+local newAnnotation(name, expr, color, tags, textFormat='Pod: {{ pod }}') = {
   "datasource": "$PROMETHEUS_DS",
   "enable": true,
   "expr": expr,
@@ -10,7 +10,7 @@ local newAnnotation(name, expr, color, textFormat='Pod: {{ pod }}') = {
   "iconColor": color,
   "name": name,
   "showIn": 0,
-  "tags": [],
+  "tags": tags,
   "textFormat": textFormat,
   "titleFormat": name,
   "type": "tags",
@@ -18,21 +18,19 @@ local newAnnotation(name, expr, color, textFormat='Pod: {{ pod }}') = {
 };
 
 {
-    PodStart: newAnnotation(
+    PodStarted: newAnnotation(
         'Pod Started',
-        'kube_pod_start_time{pod=~"^($pod)$"} * 1000',
-        'rgba(99, 221, 126, 1)'
+        'kube_pod_start_time{pod=~"$service.*"} * on (namespace, pod) group_left(label_image_tag, label_chart) kube_pod_labels * 1000',
+        'rgba(99, 221, 126, 1)',
+        tags=["pod_started"],
+        textFormat='image:{{ label_image_tag }}, chart:{{ label_chart }}'
     ),
-    PodStop: newAnnotation(
-        'Pod Stopped',
-        'kube_pod_completion_time{pod=~"^($pod)$"} * 1000',
-        'rgba(223, 92, 132, 1)',
-    ),
-    
-    DeploymentCreated: newAnnotation(
-        'Deployment Created',
-        'kube_deployment_created{deployment=~"$service.*"} * 1000',
-        'rgba(179, 225, 189, 1)',
-        textFormat='Deployment: {{ deployment }}'
+
+    ContainerStarted: newAnnotation(
+        'Container Started',
+        'container_start_time_seconds{container_name!~"POD", container_name=~"$service.*"} * 1000',
+        'rgba(99, 221, 126, 1)',
+        tags=["container_started"],
+        textFormat='{{ container_name }}'
     ),
 }

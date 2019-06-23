@@ -7,30 +7,60 @@ local template = grafana.template;
         'PROMETHEUS_DS',
         'prometheus',
         'Pfh-metrics',
-        hide='label',
+        hide='all',
     ),
 
-    Service: template.new(
-        'service',
+    Go_Service: template.new(
+        'selector',
         '$PROMETHEUS_DS',
         'label_values(go_info, service)',
         'Service',
         refresh='load'
     ),
 
-    Deployment: template.new(
-        'deployment',
+    K8s_Service: template.new(
+        'selector',
         '$PROMETHEUS_DS',
-        'label_values(kube_deployment_status_replicas, deployment)',
-        'Deployment',
+        'label_values(kube_service_labels, service)',
+        'Service',
         refresh='load'
     ),
 
-    Pod: template.new(
+    Release_Name: template.new(
+        'selector',
+        '$PROMETHEUS_DS',
+        'label_values(kube_deployment_labels, label_release)',
+        'Release Name',
+        refresh='load'
+    ),
+
+    Go_Pod: template.new(
         'pod',
         '$PROMETHEUS_DS',
-        'label_values(go_info{service="$service"}, pod)',
+        'label_values(go_info{service="$selector"}, pod)',
         'Pod',
+        includeAll=true,
+        multi=true,
+        refresh='load'
+    ),
+
+    K8s_Pod: template.new(
+        'pod',
+        '$PROMETHEUS_DS',
+        'label_values(kube_pod_labels{label_release="$selector"}, pod)',
+        'Pod',
+        allValues=".*",
+        includeAll=true,
+        multi=true,
+        refresh='load'
+    ),
+
+    K8s_Container: template.new(
+        'container',
+        '$PROMETHEUS_DS',
+        'label_values(kube_pod_container_info{pod="$pod"}, container_name)',
+        'Container',
+        allValues=".*",
         includeAll=true,
         multi=true,
         refresh='load'
@@ -41,8 +71,8 @@ local template = grafana.template;
         "auto_count": 30,
         "auto_min": "10s",
         "current": {
-          "text": "5m",
-          "value": "5m"
+          "text": "1m",
+          "value": "1m"
         },
         "datasource": null,
         "hide": 0,
