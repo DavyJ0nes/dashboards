@@ -11,16 +11,16 @@ local row = grafana.row;
 
 local infoRow = row.new(
     title='Info',
-    height='50px'
+    height='60px'
 )
 .addPanels(
     [
         metrics.SingleStat.GoVersion,
         metrics.SingleStat.AppVersion,
         metrics.SingleStat.ChartVersion,
-        metrics.SingleStat.DesriredReplicas,
-        metrics.SingleStat.AvailableReplicas,
-        metrics.SingleStat.UnavailableReplicas,
+        metrics.PieChart.DesriredReplicas,
+        metrics.PieChart.AvailableReplicas,
+        metrics.PieChart.UnavailableReplicas,
     ],
 );
 

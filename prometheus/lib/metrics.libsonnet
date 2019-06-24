@@ -8,8 +8,9 @@ local prometheus = grafana.prometheus;
         GoVersion: funcs.SingleStat(
            'Go Version',
            prometheus.target(
-               expr='topk(1, go_info{service="$selector",pod=~"^($pod)$"})',
-               legendFormat='{{ version }}'
+               expr='topk(1, go_info{service="$selector"})',
+               legendFormat='{{ version }}',
+               instant=true,
            ),
            valueName='name',
            fmt='none',
@@ -19,7 +20,8 @@ local prometheus = grafana.prometheus;
            'App Version',
            prometheus.target(
                expr='topk(1, kube_deployment_labels{label_release="$selector"})',
-               legendFormat='{{ label_image_tag }}'
+               legendFormat='{{ label_image_tag }}',
+               instant=true,
            ),
            valueName='name',
            fmt='none',
@@ -29,7 +31,8 @@ local prometheus = grafana.prometheus;
            'Chart Version',
            prometheus.target(
                expr='topk(1, kube_deployment_labels{label_release="$selector"})',
-               legendFormat='{{ label_chart }}'
+               legendFormat='{{ label_chart }}',
+               instant=true,
            ),
            valueName='name',
            fmt='none',
@@ -38,7 +41,8 @@ local prometheus = grafana.prometheus;
         DesriredReplicas: funcs.SingleStat(
            'Desired Replicas',
             prometheus.target(
-                expr='sum(kube_deployment_status_replicas{deployment=~"$selector.*"})',
+               expr='sum(kube_deployment_status_replicas{deployment=~"$selector.*"})',
+               instant=true,
             )
         ),
 
@@ -46,6 +50,7 @@ local prometheus = grafana.prometheus;
            'Available Replicas',
             prometheus.target(
                 expr='sum(kube_deployment_status_replicas_available{deployment=~"$selector.*"})',
+                instant=true,
             )
         ),
 
@@ -53,6 +58,33 @@ local prometheus = grafana.prometheus;
            'Unavailable Replicas',
             prometheus.target(
                 expr='sum(kube_deployment_status_replicas_unavailable{deployment=~"$selector.*"})',
+                instant=true,
+            )
+        ),
+    },
+
+    PieChart: {
+        DesriredReplicas: funcs.PieChart(
+           'Desired Replicas',
+            prometheus.target(
+               expr='kube_deployment_status_replicas{deployment=~"$selector.*"}',
+               legendFormat='{{ deployment }}',
+            )
+        ),
+
+        AvailableReplicas: funcs.PieChart(
+           'Available Replicas',
+            prometheus.target(
+               expr='kube_deployment_status_replicas_available{deployment=~"$selector.*"}',
+               legendFormat='{{ deployment }}',
+            )
+        ),
+
+        UnavailableReplicas: funcs.PieChart(
+           'Unavailable Replicas',
+            prometheus.target(
+               expr='kube_deployment_status_replicas_unavailable{deployment=~"$selector.*"}',
+               legendFormat='{{ deployment }}',
             )
         ),
     },
