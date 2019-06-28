@@ -20,18 +20,34 @@ local singlestat = grafana.singlestat;
         legend_total=false,
         legend_avg=true,
         legend_alignAsTable=true,
-        sort='descreasing',
+        sort=2,
     ).addTargets(targets),
 
-    SingleStat(name, target, fmt='short', valueName='current', span=2):: singlestat.new(
+    SingleStat(name, target, fmt='short', valueName='current', thresholds='', span=2):: singlestat.new(
         name,
         datasource='$PROMETHEUS_DS',
         format=fmt,
         valueName=valueName,
         span=span,
+        thresholds=thresholds,
     ).addTarget(target),
 
-    PieChart(name, target, span=2):: {
+    SingleStatPercentage(name, target, fmt='short', valueName='current', span=2):: singlestat.new(
+        name,
+        datasource='$PROMETHEUS_DS',
+        format=fmt,
+        valueName=valueName,
+        span=span,
+        valueMaps=[
+          {
+            value: 'null',
+            op: '=',
+            text: '0.00%',
+          },
+        ],
+    ).addTarget(target),
+
+    PieChart(name, target, fmt="short", showLegend=true, legendValues=true, span=2):: {
         "datasource": "$PROMETHEUS_DS",
         "pieType": "pie",
         "targets": [
@@ -46,13 +62,13 @@ local singlestat = grafana.singlestat;
         "title": name,
         "type": "grafana-piechart-panel",
         "legend": {
-          "show": true,
-          "values": true
+          "show": showLegend,
+          "values": legendValues,
         },
         "nullPointMode": "connected",
         "legendType": "Right side",
         "breakPoint": "30%",
-        "format": "short",
+        "format": fmt,
         "valueName": "current",
         "strokeWidth": "1",
         "fontSize": "80%",

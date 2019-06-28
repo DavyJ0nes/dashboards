@@ -61,6 +61,42 @@ local prometheus = grafana.prometheus;
                 instant=true,
             )
         ),
+
+        RequestRate: funcs.SingleStat(
+           'Request Rate Per Second (last 30min)',
+            prometheus.target(
+                expr='sum without(pod, route, status_code, method, instance, endpoint) (rate(http_requests_total{job="$selector"}[30m]))',
+                instant=true,
+            ),
+            fmt='short',
+        ),
+
+        ErrorRate: funcs.SingleStatPercentage(
+           'Error Rate (last 30min)',
+            prometheus.target(
+                expr='sum(rate(http_requests_total{job="$selector", status_code=~"5.."}[30m])) / sum(rate(http_requests_total{job="$selector"}[30m]))',
+                instant=true,
+            ),
+            fmt='percentunit',
+        ),
+
+        MedianLatency: funcs.SingleStat(
+           'Median Latency (last 30min)',
+            prometheus.target(
+                expr='histogram_quantile(0.5, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[30m])) by (le))',
+                instant=true,
+            ),
+            fmt='s',
+        ),
+
+        NineNineLatency: funcs.SingleStat(
+           'Median Latency (last 30min)',
+            prometheus.target(
+                expr='histogram_quantile(0.5, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[30m])) by (le))',
+                instant=true,
+            ),
+            fmt='s',
+        ),
     },
 
     PieChart: {
@@ -87,6 +123,16 @@ local prometheus = grafana.prometheus;
                legendFormat='{{ deployment }}',
             )
         ),
+
+        ResponseCode: funcs.PieChart(
+           'Response Code Distributione (last 30min)',
+            prometheus.target(
+                expr='sum by (status_code) (rate(http_requests_total{job="$selector"}[30m]))',
+                legendFormat='{{ status_code }}',
+            ),
+            showLegend=false,
+        ),
+
     },
 
     Graph: {
@@ -226,27 +272,49 @@ local prometheus = grafana.prometheus;
         ),
 
         QueryPerSecond: funcs.Graph(
-            'QPS',
+            'Request Rate Per Second',
             [
 
                 prometheus.target(
-                    expr='sum by (status) (label_replace(label_replace(rate(http_requests_total[$interval]), "status", "${1}xx", "code", "([0-9]).."), "status", "${1}", "code", "([a-z]+)"))',
+                    expr='sum by (status) (label_replace(label_replace(rate(http_requests_total{job="$selector"}[$interval]), "status", "${1}xx", "status_code", "([0-9]).."), "status", "${1}", "status_code", "([a-z]+)"))',
                     legendFormat='{{ status }}'
                 ),
             ],
             fmt='short',
+            span=4,
         ),
 
         Latency: funcs.Graph(
             'Latency',
             [
-
                 prometheus.target(
-                    expr='histogram_quantile(0.99, sum(rate(%s_bucket%s[$interval])) by (le)) * 1000',
+                    expr='histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval])) by (le)) * 1000',
+                    legendFormat='50th Percentile'
+                ),
+                prometheus.target(
+                    expr='histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval])) by (le)) * 1000',
+                    legendFormat='90th Percentile'
+                ),
+                prometheus.target(
+                    expr='histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval])) by (le)) * 1000',
                     legendFormat='99th Percentile'
                 ),
             ],
             fmt='ms',
+            span=4,
+        ),
+
+        ErrorRatePerSecond: funcs.Graph(
+            'Error Rate Per Second',
+            [
+
+                prometheus.target(
+                    expr='sum(rate(http_requests_total{job="$selector", status_code=~"5.."}[$interval]))',
+                    legendFormat='Errors'
+                ),
+            ],
+            fmt='short',
+            span=4,
         ),
 
         ContainerCPUUtilisation: funcs.Graph(
