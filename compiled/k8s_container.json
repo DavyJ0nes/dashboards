@@ -443,22 +443,8 @@
                      "expr": "avg(rate(container_cpu_cfs_throttled_seconds_total{pod_name=~\"$selector.*\", pod_name=~\"^($pod)$\", container_name=~\".+\", container_name!~\"POD\"}[$interval])) by (container_name)",
                      "format": "time_series",
                      "intervalFactor": 2,
-                     "legendFormat": "{{ container_name }}",
+                     "legendFormat": "{{ pod_name }} | {{ container_name }}",
                      "refId": "A"
-                  },
-                  {
-                     "expr": "max_over_time((rate(container_cpu_cfs_throttled_seconds_total{pod_name=~\"$selector.*\", pod_name=~\"^($pod)$\", container_name=~\".+\", container_name!~\"POD\"}[$interval]))[1h:])",
-                     "format": "time_series",
-                     "intervalFactor": 2,
-                     "legendFormat": "{{ container_name }} - max (1h)",
-                     "refId": "B"
-                  },
-                  {
-                     "expr": "avg_over_time((rate(container_cpu_cfs_throttled_seconds_total{pod_name=~\"$selector.*\", pod_name=~\"^($pod)$\", container_name=~\".+\", container_name!~\"POD\"}[$interval]))[1h:])",
-                     "format": "time_series",
-                     "intervalFactor": 2,
-                     "legendFormat": "{{ container_name }} - avg (1h)",
-                     "refId": "C"
                   }
                ],
                "thresholds": [ ],
@@ -541,30 +527,16 @@
                "repeat": null,
                "seriesOverrides": [ ],
                "spaceLength": 10,
-               "span": 4,
+               "span": 6,
                "stack": false,
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "max_over_time(container_memory_working_set_bytes{pod_name=~\"$selector.*\", pod_name=~\"^($pod)$\", container_name=~\".+\", container_name!~\"POD\"}[1h])",
+                     "expr": "sum by (pod_name, container_name) (container_memory_working_set_bytes{pod_name=~\"$selector.*\", pod_name=~\"^($pod)$\", container_name=~\".+\", container_name!~\"POD\"})",
                      "format": "time_series",
                      "intervalFactor": 2,
-                     "legendFormat": "{{ container_name }} - max (1h)",
+                     "legendFormat": "{{ pod_name }} | {{ container_name }}",
                      "refId": "A"
-                  },
-                  {
-                     "expr": "avg_over_time(container_memory_working_set_bytes{pod_name=~\"$selector.*\", pod_name=~\"^($pod)$\", container_name=~\".+\", container_name!~\"POD\"}[1h])",
-                     "format": "time_series",
-                     "intervalFactor": 2,
-                     "legendFormat": "{{ container_name }} - avg (1h)",
-                     "refId": "B"
-                  },
-                  {
-                     "expr": "container_memory_working_set_bytes{pod_name=~\"$selector.*\", pod_name=~\"^($pod)$\", container_name=~\".+\", container_name!~\"POD\"}",
-                     "format": "time_series",
-                     "intervalFactor": 2,
-                     "legendFormat": "{{ container_name }} - current",
-                     "refId": "C"
                   }
                ],
                "thresholds": [ ],
@@ -609,7 +581,7 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$PROMETHEUS_DS",
-               "fill": 1,
+               "fill": 0,
                "id": 10,
                "legend": {
                   "alignAsTable": true,
@@ -633,7 +605,85 @@
                "repeat": null,
                "seriesOverrides": [ ],
                "spaceLength": 10,
-               "span": 4,
+               "span": 6,
+               "stack": false,
+               "steppedLine": false,
+               "targets": [
+                  {
+                     "expr": "sum by (pod_name, container_name) (deriv(container_memory_working_set_bytes{pod_name=~\"$selector.*\", pod_name=~\"^($pod)$\", container_name=~\".+\", container_name!~\"POD\"}[1h]))",
+                     "format": "time_series",
+                     "intervalFactor": 2,
+                     "legendFormat": "{{ pod_name }} | {{ container_name }}",
+                     "refId": "A"
+                  }
+               ],
+               "thresholds": [ ],
+               "timeFrom": null,
+               "timeShift": null,
+               "title": "Container Memory Utilisation Derived over past hour",
+               "tooltip": {
+                  "shared": true,
+                  "sort": 2,
+                  "value_type": "individual"
+               },
+               "type": "graph",
+               "xaxis": {
+                  "buckets": null,
+                  "mode": "time",
+                  "name": null,
+                  "show": true,
+                  "values": [ ]
+               },
+               "yaxes": [
+                  {
+                     "format": "bytes",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": null,
+                     "show": true
+                  },
+                  {
+                     "format": "bytes",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": null,
+                     "show": true
+                  }
+               ]
+            },
+            {
+               "aliasColors": { },
+               "bars": false,
+               "dashLength": 10,
+               "dashes": false,
+               "datasource": "$PROMETHEUS_DS",
+               "fill": 1,
+               "id": 11,
+               "legend": {
+                  "alignAsTable": true,
+                  "avg": true,
+                  "current": true,
+                  "max": true,
+                  "min": true,
+                  "rightSide": false,
+                  "show": true,
+                  "total": false,
+                  "values": true
+               },
+               "lines": true,
+               "linewidth": 1,
+               "links": [ ],
+               "nullPointMode": "null as zero",
+               "percentage": false,
+               "pointradius": 5,
+               "points": false,
+               "renderer": "flot",
+               "repeat": null,
+               "seriesOverrides": [ ],
+               "spaceLength": 10,
+               "span": 6,
                "stack": false,
                "steppedLine": false,
                "targets": [
@@ -688,7 +738,7 @@
                "dashes": false,
                "datasource": "$PROMETHEUS_DS",
                "fill": 1,
-               "id": 11,
+               "id": 12,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -711,7 +761,7 @@
                "repeat": null,
                "seriesOverrides": [ ],
                "spaceLength": 10,
-               "span": 4,
+               "span": 6,
                "stack": false,
                "steppedLine": false,
                "targets": [
@@ -787,7 +837,7 @@
                "dashes": false,
                "datasource": "$PROMETHEUS_DS",
                "fill": 1,
-               "id": 12,
+               "id": 13,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -872,7 +922,7 @@
                "dashes": false,
                "datasource": "$PROMETHEUS_DS",
                "fill": 1,
-               "id": 13,
+               "id": 14,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -957,7 +1007,7 @@
                "dashes": false,
                "datasource": "$PROMETHEUS_DS",
                "fill": 1,
-               "id": 14,
+               "id": 15,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -1099,7 +1149,7 @@
             "multi": true,
             "name": "pod",
             "options": [ ],
-            "query": "label_values(kube_pod_labels{label_release=\"$selector\"}, pod)",
+            "query": "label_values(kube_pod_labels{label_app=~\"$selector.*\"}, pod)",
             "refresh": 1,
             "regex": "",
             "sort": 0,

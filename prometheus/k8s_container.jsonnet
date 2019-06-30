@@ -86,15 +86,7 @@ local metrics = {
             [
                 prometheus.target(
                     expr='avg(rate(container_cpu_cfs_throttled_seconds_total{pod_name=~"$selector.*", pod_name=~"^($pod)$", container_name=~".+", container_name!~"POD"}[$interval])) by (container_name)',
-                    legendFormat='{{ container_name }}'
-                ),
-                prometheus.target(
-                    expr='max_over_time((rate(container_cpu_cfs_throttled_seconds_total{pod_name=~"$selector.*", pod_name=~"^($pod)$", container_name=~".+", container_name!~"POD"}[$interval]))[1h:])',
-                    legendFormat='{{ container_name }} - max (1h)'
-                ),
-                prometheus.target(
-                    expr='avg_over_time((rate(container_cpu_cfs_throttled_seconds_total{pod_name=~"$selector.*", pod_name=~"^($pod)$", container_name=~".+", container_name!~"POD"}[$interval]))[1h:])',
-                    legendFormat='{{ container_name }} - avg (1h)'
+                    legendFormat='{{ pod_name }} | {{ container_name }}'
                 ),
             ],
             fmt='s',
@@ -104,19 +96,23 @@ local metrics = {
             'Container Memory Utilisation',
             [
                 prometheus.target(
-                    expr='max_over_time(container_memory_working_set_bytes{pod_name=~"$selector.*", pod_name=~"^($pod)$", container_name=~".+", container_name!~"POD"}[1h])',
-                    legendFormat='{{ container_name }} - max (1h)'
-                ),
-                prometheus.target(
-                    expr='avg_over_time(container_memory_working_set_bytes{pod_name=~"$selector.*", pod_name=~"^($pod)$", container_name=~".+", container_name!~"POD"}[1h])',
-                    legendFormat='{{ container_name }} - avg (1h)'
-                ),
-                prometheus.target(
-                    expr='container_memory_working_set_bytes{pod_name=~"$selector.*", pod_name=~"^($pod)$", container_name=~".+", container_name!~"POD"}',
-                    legendFormat='{{ container_name }} - current'
+                    expr='sum by (pod_name, container_name) (container_memory_working_set_bytes{pod_name=~"$selector.*", pod_name=~"^($pod)$", container_name=~".+", container_name!~"POD"})',
+                    legendFormat='{{ pod_name }} | {{ container_name }}',
                 ),
             ],
-            span=4,
+            span=6,
+            fill=0,
+        ),
+
+        MemoryDeriv: funcs.Graph(
+            'Container Memory Utilisation Derived over past hour',
+            [
+                prometheus.target(
+                    expr='sum by (pod_name, container_name) (deriv(container_memory_working_set_bytes{pod_name=~"$selector.*", pod_name=~"^($pod)$", container_name=~".+", container_name!~"POD"}[1h]))',
+                    legendFormat='{{ pod_name }} | {{ container_name }}',
+                ),
+            ],
+            span=6,
             fill=0,
         ),
 
@@ -129,7 +125,7 @@ local metrics = {
                 ),
             ],
             fmt='percentunit',
-            span=4,
+            span=6,
             min=0,
             max=1,
         ),
@@ -147,7 +143,7 @@ local metrics = {
                 ),
             ],
             fmt='short',
-            span=4,
+            span=6,
         ),
 
         NetUtilisation: funcs.Graph(
@@ -233,6 +229,7 @@ local memoryRow = row.new(
 .addPanels(
     [
         metrics.Graph.MemoryUtilisation,
+        metrics.Graph.MemoryDeriv,
         metrics.Graph.MemorySaturation,
         metrics.Graph.MemoryErrors,
     ],

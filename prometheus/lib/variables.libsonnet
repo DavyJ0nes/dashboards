@@ -47,7 +47,7 @@ local template = grafana.template;
     K8s_Pod: template.new(
         'pod',
         '$PROMETHEUS_DS',
-        'label_values(kube_pod_labels{label_release="$selector"}, pod)',
+        'label_values(kube_pod_labels{label_app=~"$selector.*"}, pod)',
         'Pod',
         allValues=".*",
         includeAll=true,
