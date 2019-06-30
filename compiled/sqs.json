@@ -835,7 +835,7 @@
          {
             "current": {
                "text": "Cloudwatch Prod",
-               "value": "CloudWatch Prod"
+               "value": "Cloudwatch Prod"
             },
             "hide": 0,
             "includeAll": false,
@@ -845,7 +845,7 @@
             "options": [ ],
             "query": "cloudwatch",
             "refresh": 1,
-            "regex": "/^Cloud/",
+            "regex": "/Cloud/",
             "skipUrlSync": false,
             "type": "datasource"
          },

@@ -20,6 +20,7 @@ local singlestat = grafana.singlestat;
         legend_total=false,
         legend_avg=true,
         legend_alignAsTable=true,
+        nullPointMode='null as zero',
         sort=2,
     ).addTargets(targets),
 

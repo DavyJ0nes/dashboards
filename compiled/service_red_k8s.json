@@ -105,7 +105,7 @@
                "tableColumn": "",
                "targets": [
                   {
-                     "expr": "sum by (service) (up{job=\"auth\"})",
+                     "expr": "sum by (service) (up{job=\"$selector\"})",
                      "format": "time_series",
                      "instant": true,
                      "intervalFactor": 2,
@@ -350,7 +350,7 @@
                "tableColumn": "",
                "targets": [
                   {
-                     "expr": "sum without(pod, route, status_code, method, instance, endpoint) (rate(http_requests_total{job=\"$selector\"}[30m]))",
+                     "expr": "sum without(pod, route, status_code, method, instance, endpoint) (rate(http_requests_total{job=\"$selector\"}[30m]) * 60)",
                      "format": "time_series",
                      "instant": true,
                      "intervalFactor": 2,
@@ -359,7 +359,7 @@
                   }
                ],
                "thresholds": "",
-               "title": "Request Rate Per Second (last 30min)",
+               "title": "Request Rate Per Minute (last 30min)",
                "type": "singlestat",
                "valueFontSize": "80%",
                "valueMaps": [
@@ -792,7 +792,7 @@
                "lines": true,
                "linewidth": 1,
                "links": [ ],
-               "nullPointMode": "null",
+               "nullPointMode": "null as zero",
                "percentage": false,
                "pointradius": 5,
                "points": false,
@@ -805,7 +805,7 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "sum by (status) (label_replace(label_replace(rate(http_requests_total{job=\"$selector\"}[$interval]), \"status\", \"${1}xx\", \"status_code\", \"([0-9])..\"), \"status\", \"${1}\", \"status_code\", \"([a-z]+)\"))",
+                     "expr": "sum by (status) (label_replace(label_replace(rate(http_requests_total{job=\"$selector\"}[$interval]) * 60, \"status\", \"${1}xx\", \"status_code\", \"([0-9])..\"), \"status\", \"${1}\", \"status_code\", \"([a-z]+)\"))",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "{{ status }}",
@@ -815,7 +815,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Request Rate Per Second",
+               "title": "Request Rate Per Minute",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -831,7 +831,7 @@
                },
                "yaxes": [
                   {
-                     "format": "rps",
+                     "format": "opm",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -839,7 +839,7 @@
                      "show": true
                   },
                   {
-                     "format": "rps",
+                     "format": "opm",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -870,7 +870,7 @@
                "lines": true,
                "linewidth": 1,
                "links": [ ],
-               "nullPointMode": "null",
+               "nullPointMode": "null as zero",
                "percentage": false,
                "pointradius": 5,
                "points": false,
@@ -883,21 +883,21 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[$interval])) by (le)) * 1000",
+                     "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[$interval]) * 60) by (le)) * 1000",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "50th Percentile",
                      "refId": "A"
                   },
                   {
-                     "expr": "histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[$interval])) by (le)) * 1000",
+                     "expr": "histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[$interval]) * 60) by (le)) * 1000",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "90th Percentile",
                      "refId": "B"
                   },
                   {
-                     "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[$interval])) by (le)) * 1000",
+                     "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[$interval]) * 60) by (le)) * 1000",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "99th Percentile",
@@ -962,7 +962,7 @@
                "lines": true,
                "linewidth": 1,
                "links": [ ],
-               "nullPointMode": "null",
+               "nullPointMode": "null as zero",
                "percentage": false,
                "pointradius": 5,
                "points": false,
@@ -975,7 +975,7 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "sum(rate(http_requests_total{job=\"$selector\", status_code=~\"5..\"}[$interval]))",
+                     "expr": "sum(rate(http_requests_total{job=\"$selector\", status_code=~\"5..\"}[$interval]) * 60)",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "Errors",
@@ -985,7 +985,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Error Rate Per Second",
+               "title": "Error Rate Per Minute",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -1054,7 +1054,7 @@
                "lines": true,
                "linewidth": 1,
                "links": [ ],
-               "nullPointMode": "null",
+               "nullPointMode": "null as zero",
                "percentage": false,
                "pointradius": 5,
                "points": false,
@@ -1067,7 +1067,7 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "sum by (status_code, route) (rate(http_requests_total{job=\"$selector\"}[$interval]))",
+                     "expr": "sum by (status_code, route) (rate(http_requests_total{job=\"$selector\"}[$interval]) * 60)",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "{{ status_code }} - {{ route }}",
@@ -1077,7 +1077,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Request Rate Per Second",
+               "title": "Request Rate Per Minute",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -1093,7 +1093,7 @@
                },
                "yaxes": [
                   {
-                     "format": "rps",
+                     "format": "opm",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -1101,7 +1101,7 @@
                      "show": true
                   },
                   {
-                     "format": "rps",
+                     "format": "opm",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -1132,7 +1132,7 @@
                "lines": true,
                "linewidth": 1,
                "links": [ ],
-               "nullPointMode": "null",
+               "nullPointMode": "null as zero",
                "percentage": false,
                "pointradius": 5,
                "points": false,
@@ -1145,21 +1145,21 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[$interval])) by (le, route)) * 1000",
+                     "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[$interval]) * 60) by (le, route)) * 1000",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "50 - {{ route }}",
                      "refId": "A"
                   },
                   {
-                     "expr": "histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[$interval])) by (le, route)) * 1000",
+                     "expr": "histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[$interval]) * 60) by (le, route)) * 1000",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "90 - {{ route }}",
                      "refId": "B"
                   },
                   {
-                     "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[$interval])) by (le, route)) * 1000",
+                     "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[$interval]) * 60) by (le, route)) * 1000",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "99 - {{ route }}",
@@ -1224,7 +1224,7 @@
                "lines": true,
                "linewidth": 1,
                "links": [ ],
-               "nullPointMode": "null",
+               "nullPointMode": "null as zero",
                "percentage": false,
                "pointradius": 5,
                "points": false,
@@ -1237,7 +1237,7 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "sum by (route) (rate(http_requests_total{job=\"$selector\", status_code=~\"5..\"}[$interval]))",
+                     "expr": "sum by (route) (rate(http_requests_total{job=\"$selector\", status_code=~\"5..\"}[$interval]) * 60)",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "Errors - {{ route }}",
@@ -1247,7 +1247,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Error Rate Per Second",
+               "title": "Error Rate Per Minute",
                "tooltip": {
                   "shared": true,
                   "sort": 2,

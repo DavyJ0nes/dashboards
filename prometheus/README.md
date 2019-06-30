@@ -7,7 +7,6 @@ created:
 - [annotations](./lib/annotations.libsonnet)
 - [functions](./lib/functions.libsonnet)
 - [links](./lib/links.libsonnet)
-- [metrics](./lib/metrics.libsonnet)
 - [variables](./lib/variables.libsonnet)
 
 With these then one is able to easily compose dashboards with less boilerplate.
@@ -23,4 +22,8 @@ There are currently two dashboards built:
   container.
   This is useful when digging further into a specific issue and not intended as
   an overview
+- **K8s Service RED** exposes service level metrics based on the RED signals of:
+  - **R**equest Rate
+  - **E**rror Rate
+  - **D**uration or Latency
   

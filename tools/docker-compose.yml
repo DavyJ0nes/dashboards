@@ -5,7 +5,7 @@ services:
     ports:
       - '9090:9090'
     volumes:
-      - './prometheus/etc/:/etc/prometheus/'
+      - '../config/prometheus/etc/:/etc/prometheus/'
 
   grafana:
     image: grafana/grafana:master
@@ -17,7 +17,7 @@ services:
     ports:
       - '3001:3000'
     volumes:
-      - './data:/var/lib/grafana'
-      - './compiled:/var/lib/grafana/dashboards'
-      - './config/dashboards":/etc/grafana/provisioning/dashboards'
-      - './config/datasources":/etc/grafana/provisioning/datasources'
+      - '../data:/var/lib/grafana'
+      - '../compiled:/var/lib/grafana/dashboards'
+      - '../config/dashboards":/etc/grafana/provisioning/dashboards'
+      - '../config/datasources":/etc/grafana/provisioning/datasources'

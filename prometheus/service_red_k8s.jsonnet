@@ -13,7 +13,7 @@ local metrics = {
         Up: funcs.SingleStat(
            'Replicas Up',
            prometheus.target(
-               expr='sum by (service) (up{job="auth"})',
+               expr='sum by (service) (up{job="$selector"})',
                instant=true,
            ),
            fmt='short',
@@ -58,9 +58,9 @@ local metrics = {
         ),
 
         RequestRate: funcs.SingleStat(
-           'Request Rate Per Second (last 30min)',
+           'Request Rate Per Minute (last 30min)',
             prometheus.target(
-                expr='sum without(pod, route, status_code, method, instance, endpoint) (rate(http_requests_total{job="$selector"}[30m]))',
+                expr='sum without(pod, route, status_code, method, instance, endpoint) (rate(http_requests_total{job="$selector"}[30m]) * 60)',
                 instant=true,
             ),
             fmt='short',
@@ -119,29 +119,29 @@ local metrics = {
     },
 
     Graph: {
-        QueryPerSecond: funcs.Graph(
-            'Request Rate Per Second',
+        QueryPerMinute: funcs.Graph(
+            'Request Rate Per Minute',
             [
 
                 prometheus.target(
-                    expr='sum by (status) (label_replace(label_replace(rate(http_requests_total{job="$selector"}[$interval]), "status", "${1}xx", "status_code", "([0-9]).."), "status", "${1}", "status_code", "([a-z]+)"))',
+                    expr='sum by (status) (label_replace(label_replace(rate(http_requests_total{job="$selector"}[$interval]) * 60, "status", "${1}xx", "status_code", "([0-9]).."), "status", "${1}", "status_code", "([a-z]+)"))',
                     legendFormat='{{ status }}'
                 ),
             ],
-            fmt='rps',
+            fmt='opm',
             span=4,
         ),
 
-        QueryPerSecondPath: funcs.Graph(
-            'Request Rate Per Second',
+        QueryPerMinutePath: funcs.Graph(
+            'Request Rate Per Minute',
             [
 
                 prometheus.target(
-                    expr='sum by (status_code, route) (rate(http_requests_total{job="$selector"}[$interval]))',
+                    expr='sum by (status_code, route) (rate(http_requests_total{job="$selector"}[$interval]) * 60)',
                     legendFormat='{{ status_code }} - {{ route }}'
                 ),
             ],
-            fmt='rps',
+            fmt='opm',
             span=6,
         ),
 
@@ -149,15 +149,15 @@ local metrics = {
             'Latency',
             [
                 prometheus.target(
-                    expr='histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval])) by (le)) * 1000',
+                    expr='histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval]) * 60) by (le)) * 1000',
                     legendFormat='50th Percentile'
                 ),
                 prometheus.target(
-                    expr='histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval])) by (le)) * 1000',
+                    expr='histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval]) * 60) by (le)) * 1000',
                     legendFormat='90th Percentile'
                 ),
                 prometheus.target(
-                    expr='histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval])) by (le)) * 1000',
+                    expr='histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval]) * 60) by (le)) * 1000',
                     legendFormat='99th Percentile'
                 ),
             ],
@@ -169,15 +169,15 @@ local metrics = {
             'Latency',
             [
                 prometheus.target(
-                    expr='histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval])) by (le, route)) * 1000',
+                    expr='histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval]) * 60) by (le, route)) * 1000',
                     legendFormat='50 - {{ route }}'
                 ),
                 prometheus.target(
-                    expr='histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval])) by (le, route)) * 1000',
+                    expr='histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval]) * 60) by (le, route)) * 1000',
                     legendFormat='90 - {{ route }}'
                 ),
                 prometheus.target(
-                    expr='histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval])) by (le, route)) * 1000',
+                    expr='histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval]) * 60) by (le, route)) * 1000',
                     legendFormat='99 - {{ route }}'
                 ),
             ],
@@ -185,12 +185,12 @@ local metrics = {
             span=6,
         ),
 
-        ErrorRatePerSecond: funcs.Graph(
-            'Error Rate Per Second',
+        ErrorRatePerMinute: funcs.Graph(
+            'Error Rate Per Minute',
             [
 
                 prometheus.target(
-                    expr='sum(rate(http_requests_total{job="$selector", status_code=~"5.."}[$interval]))',
+                    expr='sum(rate(http_requests_total{job="$selector", status_code=~"5.."}[$interval]) * 60)',
                     legendFormat='Errors'
                 ),
             ],
@@ -198,12 +198,12 @@ local metrics = {
             span=4,
         ),
 
-        ErrorRatePerSecondPath: funcs.Graph(
-            'Error Rate Per Second',
+        ErrorRatePerMinutePath: funcs.Graph(
+            'Error Rate Per Minute',
             [
 
                 prometheus.target(
-                    expr='sum by (route) (rate(http_requests_total{job="$selector", status_code=~"5.."}[$interval]))',
+                    expr='sum by (route) (rate(http_requests_total{job="$selector", status_code=~"5.."}[$interval]) * 60)',
                     legendFormat='Errors - {{ route }}'
                 ),
             ],
@@ -249,9 +249,9 @@ local redRow = row.new(
 )
 .addPanels(
     [
-        metrics.Graph.QueryPerSecond,
+        metrics.Graph.QueryPerMinute,
         metrics.Graph.Latency,
-        metrics.Graph.ErrorRatePerSecond,
+        metrics.Graph.ErrorRatePerMinute,
     ],
 );
 
@@ -262,9 +262,9 @@ local redRowByPath = row.new(
 )
 .addPanels(
     [
-        metrics.Graph.QueryPerSecondPath,
+        metrics.Graph.QueryPerMinutePath,
         metrics.Graph.LatencyPath,
-        metrics.Graph.ErrorRatePerSecondPath,
+        metrics.Graph.ErrorRatePerMinutePath,
     ],
 );
 

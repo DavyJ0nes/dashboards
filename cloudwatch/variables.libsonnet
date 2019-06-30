@@ -2,11 +2,13 @@ local grafana = import '../lib/grafonnet/grafana.libsonnet';
 
 local template = grafana.template;
 
+local defaultEnv = 'Cloudwatch Prod';
+
 {
   EnvVar: {
     "current": {
-      "text": "Cloudwatch Prod",
-      "value": "CloudWatch Prod"
+      "text": defaultEnv,
+      "value": defaultEnv,
     },
     "hide": 0,
     "includeAll": false,
@@ -16,7 +18,7 @@ local template = grafana.template;
     "options": [],
     "query": "cloudwatch",
     "refresh": 1,
-    "regex": "/^Cloud/",
+    "regex": "/Cloud/",
     "skipUrlSync": false,
     "type": "datasource"
   },
