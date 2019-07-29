@@ -350,7 +350,7 @@
                "tableColumn": "",
                "targets": [
                   {
-                     "expr": "sum without(pod, route, status_code, method, instance, endpoint) (rate(http_requests_total{job=\"$selector\"}[30m]) * 60)",
+                     "expr": "sum without(pod, route, code, method, instance, endpoint) (rate(${app_name}_http_requests_total{job=\"$selector\"}[30m]) * 60)",
                      "format": "time_series",
                      "instant": true,
                      "intervalFactor": 2,
@@ -427,7 +427,7 @@
                "tableColumn": "",
                "targets": [
                   {
-                     "expr": "sum(rate(http_requests_total{job=\"$selector\", status_code=~\"5..\"}[30m])) / sum(rate(http_requests_total{job=\"$selector\"}[30m]))",
+                     "expr": "sum(rate(${app_name}_http_requests_total{job=\"$selector\", code=~\"5..\"}[30m])) / sum(rate(${app_name}_http_requests_total{job=\"$selector\"}[30m]))",
                      "format": "time_series",
                      "instant": true,
                      "intervalFactor": 2,
@@ -504,7 +504,7 @@
                "tableColumn": "",
                "targets": [
                   {
-                     "expr": "sum(rate(http_requests_total{job=\"$selector\", status_code=\"401\"}[30m])) / sum(rate(http_requests_total{job=\"$selector\"}[30m]))",
+                     "expr": "sum(rate(${app_name}_http_requests_total{job=\"$selector\", code=\"401\"}[30m])) / sum(rate(${app_name}_http_requests_total{job=\"$selector\"}[30m]))",
                      "format": "time_series",
                      "instant": true,
                      "intervalFactor": 2,
@@ -581,7 +581,7 @@
                "tableColumn": "",
                "targets": [
                   {
-                     "expr": "sum(rate(http_requests_total{job=\"$selector\", status_code=\"403\"}[30m])) / sum(rate(http_requests_total{job=\"$selector\"}[30m]))",
+                     "expr": "sum(rate(${app_name}_http_requests_total{job=\"$selector\", code=\"403\"}[30m])) / sum(rate(${app_name}_http_requests_total{job=\"$selector\"}[30m]))",
                      "format": "time_series",
                      "instant": true,
                      "intervalFactor": 2,
@@ -658,7 +658,7 @@
                "tableColumn": "",
                "targets": [
                   {
-                     "expr": "histogram_quantile(0.5, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[30m])) by (le))",
+                     "expr": "histogram_quantile(0.5, sum(rate(${app_name}_http_request_duration_seconds_bucket{service=\"$selector\"}[30m])) by (le))",
                      "format": "time_series",
                      "instant": true,
                      "intervalFactor": 2,
@@ -735,7 +735,7 @@
                "tableColumn": "",
                "targets": [
                   {
-                     "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[30m])) by (le))",
+                     "expr": "histogram_quantile(0.99, sum(rate(${app_name}_http_request_duration_seconds_bucket{service=\"$selector\"}[30m])) by (le))",
                      "format": "time_series",
                      "instant": true,
                      "intervalFactor": 2,
@@ -805,7 +805,7 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "sum by (status) (label_replace(label_replace(rate(http_requests_total{job=\"$selector\"}[$interval]) * 60, \"status\", \"${1}xx\", \"status_code\", \"([0-9])..\"), \"status\", \"${1}\", \"status_code\", \"([a-z]+)\"))",
+                     "expr": "sum by (status) (label_replace(label_replace(rate(${app_name}_http_requests_total{job=\"$selector\"}[$interval]) * 60, \"status\", \"${1}xx\", \"code\", \"([0-9])..\"), \"status\", \"${1}\", \"code\", \"([a-z]+)\"))",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "{{ status }}",
@@ -883,21 +883,21 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[$interval]) * 60) by (le)) * 1000",
+                     "expr": "histogram_quantile(0.50, sum(rate(${app_name}_http_request_duration_seconds_bucket{service=\"$selector\"}[$interval]) * 60) by (le)) * 1000",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "50th Percentile",
                      "refId": "A"
                   },
                   {
-                     "expr": "histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[$interval]) * 60) by (le)) * 1000",
+                     "expr": "histogram_quantile(0.90, sum(rate(${app_name}_http_request_duration_seconds_bucket{service=\"$selector\"}[$interval]) * 60) by (le)) * 1000",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "90th Percentile",
                      "refId": "B"
                   },
                   {
-                     "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[$interval]) * 60) by (le)) * 1000",
+                     "expr": "histogram_quantile(0.99, sum(rate(${app_name}_http_request_duration_seconds_bucket{service=\"$selector\"}[$interval]) * 60) by (le)) * 1000",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "99th Percentile",
@@ -975,7 +975,7 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "sum(rate(http_requests_total{job=\"$selector\", status_code=~\"5..\"}[$interval]) * 60)",
+                     "expr": "sum(rate(${app_name}_http_requests_total{job=\"$selector\", code=~\"5..\"}[$interval]) * 60)",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "Errors",
@@ -1067,10 +1067,10 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "sum by (status_code, route) (rate(http_requests_total{job=\"$selector\"}[$interval]) * 60)",
+                     "expr": "sum by (code, route) (rate(${app_name}_http_requests_total{job=\"$selector\"}[$interval]) * 60)",
                      "format": "time_series",
                      "intervalFactor": 2,
-                     "legendFormat": "{{ status_code }} - {{ route }}",
+                     "legendFormat": "{{ code }} - {{ route }}",
                      "refId": "A"
                   }
                ],
@@ -1145,21 +1145,21 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[$interval]) * 60) by (le, route)) * 1000",
+                     "expr": "histogram_quantile(0.50, sum(rate(${app_name}_http_request_duration_seconds_bucket{service=\"$selector\"}[$interval]) * 60) by (le, route)) * 1000",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "50 - {{ route }}",
                      "refId": "A"
                   },
                   {
-                     "expr": "histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[$interval]) * 60) by (le, route)) * 1000",
+                     "expr": "histogram_quantile(0.90, sum(rate(${app_name}_http_request_duration_seconds_bucket{service=\"$selector\"}[$interval]) * 60) by (le, route)) * 1000",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "90 - {{ route }}",
                      "refId": "B"
                   },
                   {
-                     "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{service=\"$selector\"}[$interval]) * 60) by (le, route)) * 1000",
+                     "expr": "histogram_quantile(0.99, sum(rate(${app_name}_http_request_duration_seconds_bucket{service=\"$selector\"}[$interval]) * 60) by (le, route)) * 1000",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "99 - {{ route }}",
@@ -1237,7 +1237,7 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "sum by (route) (rate(http_requests_total{job=\"$selector\", status_code=~\"5..\"}[$interval]) * 60)",
+                     "expr": "sum by (route) (rate(${app_name}_http_requests_total{job=\"$selector\", code=~\"5..\"}[$interval]) * 60)",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "Errors - {{ route }}",
@@ -1326,6 +1326,26 @@
             "query": "label_values(go_info, service)",
             "refresh": 1,
             "regex": "",
+            "sort": 0,
+            "tagValuesQuery": "",
+            "tags": [ ],
+            "tagsQuery": "",
+            "type": "query",
+            "useTags": false
+         },
+         {
+            "allValue": null,
+            "current": { },
+            "datasource": "$PROMETHEUS_DS",
+            "hide": 0,
+            "includeAll": false,
+            "label": "App",
+            "multi": false,
+            "name": "app_name",
+            "options": [ ],
+            "query": "metrics(.*_http_.*)",
+            "refresh": 1,
+            "regex": "/(.+?(?=_http))/",
             "sort": 0,
             "tagValuesQuery": "",
             "tags": [ ],

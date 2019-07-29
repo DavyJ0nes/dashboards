@@ -15,7 +15,16 @@ local template = grafana.template;
         '$PROMETHEUS_DS',
         'label_values(go_info, service)',
         'Service',
-        refresh='load'
+        refresh='load',
+    ),
+
+    Go_App: template.new(
+        'app_name',
+        '$PROMETHEUS_DS',
+        'metrics(.*_http_.*)',
+        'App',
+        regex='/(.+?(?=_http))/',
+        refresh='load',
     ),
 
     K8s_Service: template.new(

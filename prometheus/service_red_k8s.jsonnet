@@ -60,7 +60,7 @@ local metrics = {
         RequestRate: funcs.SingleStat(
            'Request Rate Per Minute (last 30min)',
             prometheus.target(
-                expr='sum without(pod, route, status_code, method, instance, endpoint) (rate(http_requests_total{job="$selector"}[30m]) * 60)',
+                expr='sum without(pod, route, code, method, instance, endpoint) (rate(${app_name}_http_requests_total{job="$selector"}[30m]) * 60)',
                 instant=true,
             ),
             fmt='short',
@@ -70,7 +70,7 @@ local metrics = {
         ErrorRate: funcs.SingleStatPercentage(
            'Error Rate (last 30min)',
             prometheus.target(
-                expr='sum(rate(http_requests_total{job="$selector", status_code=~"5.."}[30m])) / sum(rate(http_requests_total{job="$selector"}[30m]))',
+                expr='sum(rate(${app_name}_http_requests_total{job="$selector", code=~"5.."}[30m])) / sum(rate(${app_name}_http_requests_total{job="$selector"}[30m]))',
                 instant=true,
             ),
             fmt='percentunit',
@@ -80,7 +80,7 @@ local metrics = {
         FourOhOneRate: funcs.SingleStatPercentage(
            '401 Rate (last 30min)',
             prometheus.target(
-                expr='sum(rate(http_requests_total{job="$selector", status_code="401"}[30m])) / sum(rate(http_requests_total{job="$selector"}[30m]))',
+                expr='sum(rate(${app_name}_http_requests_total{job="$selector", code="401"}[30m])) / sum(rate(${app_name}_http_requests_total{job="$selector"}[30m]))',
                 instant=true,
             ),
             fmt='percentunit',
@@ -90,7 +90,7 @@ local metrics = {
         FourOhThreeRate: funcs.SingleStatPercentage(
            '403 Rate (last 30min)',
             prometheus.target(
-                expr='sum(rate(http_requests_total{job="$selector", status_code="403"}[30m])) / sum(rate(http_requests_total{job="$selector"}[30m]))',
+                expr='sum(rate(${app_name}_http_requests_total{job="$selector", code="403"}[30m])) / sum(rate(${app_name}_http_requests_total{job="$selector"}[30m]))',
                 instant=true,
             ),
             fmt='percentunit',
@@ -100,7 +100,7 @@ local metrics = {
         MedianLatency: funcs.SingleStat(
            'Median Latency (last 30min)',
             prometheus.target(
-                expr='histogram_quantile(0.5, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[30m])) by (le))',
+                expr='histogram_quantile(0.5, sum(rate(${app_name}_http_request_duration_seconds_bucket{service="$selector"}[30m])) by (le))',
                 instant=true,
             ),
             fmt='s',
@@ -110,7 +110,7 @@ local metrics = {
         NineNineLatency: funcs.SingleStat(
            '99th %ile Latency (last 30min)',
             prometheus.target(
-                expr='histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[30m])) by (le))',
+                expr='histogram_quantile(0.99, sum(rate(${app_name}_http_request_duration_seconds_bucket{service="$selector"}[30m])) by (le))',
                 instant=true,
             ),
             fmt='s',
@@ -124,7 +124,7 @@ local metrics = {
             [
 
                 prometheus.target(
-                    expr='sum by (status) (label_replace(label_replace(rate(http_requests_total{job="$selector"}[$interval]) * 60, "status", "${1}xx", "status_code", "([0-9]).."), "status", "${1}", "status_code", "([a-z]+)"))',
+                    expr='sum by (status) (label_replace(label_replace(rate(${app_name}_http_requests_total{job="$selector"}[$interval]) * 60, "status", "${1}xx", "code", "([0-9]).."), "status", "${1}", "code", "([a-z]+)"))',
                     legendFormat='{{ status }}'
                 ),
             ],
@@ -137,8 +137,8 @@ local metrics = {
             [
 
                 prometheus.target(
-                    expr='sum by (status_code, route) (rate(http_requests_total{job="$selector"}[$interval]) * 60)',
-                    legendFormat='{{ status_code }} - {{ route }}'
+                    expr='sum by (code, route) (rate(${app_name}_http_requests_total{job="$selector"}[$interval]) * 60)',
+                    legendFormat='{{ code }} - {{ route }}'
                 ),
             ],
             fmt='opm',
@@ -149,15 +149,15 @@ local metrics = {
             'Latency',
             [
                 prometheus.target(
-                    expr='histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval]) * 60) by (le)) * 1000',
+                    expr='histogram_quantile(0.50, sum(rate(${app_name}_http_request_duration_seconds_bucket{service="$selector"}[$interval]) * 60) by (le)) * 1000',
                     legendFormat='50th Percentile'
                 ),
                 prometheus.target(
-                    expr='histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval]) * 60) by (le)) * 1000',
+                    expr='histogram_quantile(0.90, sum(rate(${app_name}_http_request_duration_seconds_bucket{service="$selector"}[$interval]) * 60) by (le)) * 1000',
                     legendFormat='90th Percentile'
                 ),
                 prometheus.target(
-                    expr='histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval]) * 60) by (le)) * 1000',
+                    expr='histogram_quantile(0.99, sum(rate(${app_name}_http_request_duration_seconds_bucket{service="$selector"}[$interval]) * 60) by (le)) * 1000',
                     legendFormat='99th Percentile'
                 ),
             ],
@@ -169,15 +169,15 @@ local metrics = {
             'Latency',
             [
                 prometheus.target(
-                    expr='histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval]) * 60) by (le, route)) * 1000',
+                    expr='histogram_quantile(0.50, sum(rate(${app_name}_http_request_duration_seconds_bucket{service="$selector"}[$interval]) * 60) by (le, route)) * 1000',
                     legendFormat='50 - {{ route }}'
                 ),
                 prometheus.target(
-                    expr='histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval]) * 60) by (le, route)) * 1000',
+                    expr='histogram_quantile(0.90, sum(rate(${app_name}_http_request_duration_seconds_bucket{service="$selector"}[$interval]) * 60) by (le, route)) * 1000',
                     legendFormat='90 - {{ route }}'
                 ),
                 prometheus.target(
-                    expr='histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{service="$selector"}[$interval]) * 60) by (le, route)) * 1000',
+                    expr='histogram_quantile(0.99, sum(rate(${app_name}_http_request_duration_seconds_bucket{service="$selector"}[$interval]) * 60) by (le, route)) * 1000',
                     legendFormat='99 - {{ route }}'
                 ),
             ],
@@ -190,7 +190,7 @@ local metrics = {
             [
 
                 prometheus.target(
-                    expr='sum(rate(http_requests_total{job="$selector", status_code=~"5.."}[$interval]) * 60)',
+                    expr='sum(rate(${app_name}_http_requests_total{job="$selector", code=~"5.."}[$interval]) * 60)',
                     legendFormat='Errors'
                 ),
             ],
@@ -203,7 +203,7 @@ local metrics = {
             [
 
                 prometheus.target(
-                    expr='sum by (route) (rate(http_requests_total{job="$selector", status_code=~"5.."}[$interval]) * 60)',
+                    expr='sum by (route) (rate(${app_name}_http_requests_total{job="$selector", code=~"5.."}[$interval]) * 60)',
                     legendFormat='Errors - {{ route }}'
                 ),
             ],
@@ -278,6 +278,7 @@ dashboard.new(
 )
 .addTemplate(vars.Datasource)
 .addTemplate(vars.Go_Service)
+.addTemplate(vars.Go_App)
 .addTemplate(vars.Interval)
 .addAnnotation(annotations.PodStarted)
 .addLink(links.RelatedDashboards)
